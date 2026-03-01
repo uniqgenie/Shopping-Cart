@@ -1,3 +1,4 @@
+// Product catalog
 const products = [
   {
     name: "Carton of Cherries",
@@ -22,18 +23,15 @@ const products = [
   },
 ];
 
+// Cart (stores references to product objects)
 const cart = [];
 
-
-const stockLimit =
-  typeof window !== "undefined"
-    ? {
-        100: 5, 
-        101: 3, 
-        102: 8, 
-      }
-    : {};
-
+// Stock limits
+const stockLimit = {
+  100: 5,
+  101: 3,
+  102: 8,
+};
 
 function getProductById(productId, list) {
   return list.find((p) => p.productId === productId);
@@ -47,7 +45,6 @@ function getLimit(productId) {
   return stockLimit[productId] ?? Infinity;
 }
 
-
 function addProductToCart(productId) {
   const product = getProductById(productId, products);
   if (!product) return;
@@ -55,6 +52,7 @@ function addProductToCart(productId) {
   const limit = getLimit(productId);
   const cartIndex = getIndexById(productId, cart);
 
+  // If already in cart, increase if under limit
   if (cartIndex !== -1) {
     if (cart[cartIndex].quantity < limit) {
       cart[cartIndex].quantity += 1;
@@ -62,7 +60,7 @@ function addProductToCart(productId) {
     return;
   }
 
-
+  // Add to cart if available
   if (limit > 0) {
     product.quantity = 1;
     cart.push(product);
@@ -103,7 +101,6 @@ function removeProductFromCart(productId) {
   product.quantity = 0;
 }
 
-
 function cartTotal() {
   return cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 }
@@ -116,6 +113,7 @@ function pay(amount) {
   const total = cartTotal();
   const balance = totalPaid - total;
 
+  // If fully paid and cart isn't empty, clear it
   if (balance >= 0 && total > 0) {
     emptyCart();
     totalPaid = 0;
@@ -124,21 +122,8 @@ function pay(amount) {
   return balance;
 }
 
-
 function emptyCart() {
   for (let i = cart.length - 1; i >= 0; i -= 1) {
     removeProductFromCart(cart[i].productId);
   }
 }
-
-module.exports = {
-  products,
-  cart,
-  addProductToCart,
-  increaseQuantity,
-  decreaseQuantity,
-  removeProductFromCart,
-  cartTotal,
-  pay,
-  emptyCart,
-};
